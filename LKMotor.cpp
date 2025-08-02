@@ -1,4 +1,3 @@
-// LKMotor.cpp
 #include "LKMotor.h"
 #include <cstdint>
 

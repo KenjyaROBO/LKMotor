@@ -1,4 +1,3 @@
-// LKMotor.h
 #ifndef LKMOTOR_H
 #define LKMOTOR_H
 
