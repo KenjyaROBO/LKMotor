@@ -196,9 +196,16 @@ bool LKMotor::get_state(uint8_t index, LKMState &status) {
     return false;
 }
 
+
 void LKMotor::request_state1(uint8_t index) {
     uint8_t data[8] = {0x9A, 0, 0, 0, 0, 0, 0, 0};
     sendCommand(index + 1, 0x9A, data);
+}
+
+void LKMotor::request_state1All(){
+    for(int i = 0; i < _motorCount; i++){
+        request_state1(i);
+    }
 }
 
 void LKMotor::request_state2(uint8_t index) {
@@ -206,15 +213,33 @@ void LKMotor::request_state2(uint8_t index) {
     sendCommand(index + 1, 0x9C, data);
 }
 
+void LKMotor::request_state2All(){
+    for(int i = 0; i < _motorCount; i++){
+        request_state2(i);
+    }
+}
+
 void LKMotor::request_encoder(uint8_t index) {
     uint8_t data[8] = {0x92, 0, 0, 0, 0, 0, 0, 0};
     sendCommand(index + 1, 0x92, data);
 }
 
-void LKMotor::requestAll(uint8_t index) {
+void LKMotor::request_encoderAll() {
+    for(int i = 0; i < _motorCount; i++){
+        request_encoder(i);
+    }
+}
+
+void LKMotor::request(uint8_t index) {
     if(count==0){request_state1(index); count++;}
     else if(count==1){request_state2(index); count++;}
     else if(count==2){request_encoder(index); count=0;}
+}
+
+void LKMotor::requestAll(){
+    for(int i = 0; i < _motorCount; i++){
+        request(i);
+    }
 }
 /*
     /\_____/\

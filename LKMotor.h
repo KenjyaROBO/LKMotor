@@ -49,8 +49,12 @@ public:
     void request_state1(uint8_t index); // 0x9A
     void request_state2(uint8_t index); // 0x9C
     void request_encoder(uint8_t index); // 0x92
+    void request(uint8_t index);
 
-    void requestAll(uint8_t index);
+    void request_state1All();
+    void request_state2All();
+    void request_encoderAll();
+    void requestAll();
 
 private:
     CAN &_can;
