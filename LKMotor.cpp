@@ -24,17 +24,17 @@ void LKMotor::sendCommand(uint8_t motorID, uint8_t cmd, const uint8_t data[8]) {
 
 void LKMotor::motorOn() {
     uint8_t data[8] = {0x88,0,0,0,0,0,0,0};
-    for (int i = 1; i <= _motorCount; ++i) sendCommand(i, 0x88, data);
+    for (int i = 1; i <= _motorCount; i++) sendCommand(i, 0x88, data);
 }
 
 void LKMotor::motorOff() {
     uint8_t data[8] = {0x80,0,0,0,0,0,0,0};
-    for (int i = 1; i <= _motorCount; ++i) sendCommand(i, 0x80, data);
+    for (int i = 1; i <= _motorCount; i++) sendCommand(i, 0x80, data);
 }
 
 void LKMotor::stopMotor() {
     uint8_t data[8] = {0x81,0,0,0,0,0,0,0};
-    for (int i = 1; i <= _motorCount; ++i) sendCommand(i, 0x81, data);
+    for (int i = 1; i <= _motorCount; i++) sendCommand(i, 0x81, data);
 }
 
 void LKMotor::trq_control(int motor_index, int16_t torqueControl) {
@@ -46,7 +46,7 @@ void LKMotor::trq_control(int motor_index, int16_t torqueControl) {
 }
 
 void LKMotor::trq_controlAll(int16_t* torques){
-    for (int i = 0; i < _motorCount; ++i) {
+    for (int i = 0; i < _motorCount; i++) {
         spd_control(i, torques[i]);
     }
 }
@@ -59,7 +59,7 @@ void LKMotor::spd_control(int motor_index, int32_t speedControl) {
 }
 
 void LKMotor::spd_controlAll(int32_t* speeds) {
-    for (int i = 0; i < _motorCount; ++i) {
+    for (int i = 0; i < _motorCount; i++) {
         spd_control(i, speeds[i]);
     }
 }
@@ -74,14 +74,14 @@ void LKMotor::angle_control(int motor_index, int32_t angleControl) {
 }
 
 void LKMotor::angle_controlAll(int32_t* angles) {
-    for (int i = 0; i < _motorCount; ++i) {
+    for (int i = 0; i < _motorCount; i++) {
         spd_control(i, angles[i]);
     }
 }
 
 void LKMotor::set_angle_control(int motor_index, int32_t angleControl, uint16_t maxSpeed) {
     angleControl *= (int32_t)100;
-    maxSpeed *= (uint16_t)60;
+    maxSpeed *= (uint16_t)6;
     uint8_t* p = (uint8_t*)&angleControl;
     uint8_t data[8] = {0xA4, 0, 
         (uint8_t)(maxSpeed & 0xFF), (uint8_t)(maxSpeed >> 8),
@@ -90,7 +90,7 @@ void LKMotor::set_angle_control(int motor_index, int32_t angleControl, uint16_t 
 }
 
 void LKMotor::set_angle_controlAll(int32_t* angles,uint16_t* speeds){
-    for (int i = 0; i < _motorCount; ++i) {
+    for (int i = 0; i < _motorCount; i++) {
         set_angle_control(i, angles[i],speeds[i]);
     }
 }
@@ -102,14 +102,26 @@ void LKMotor::abs_angle_control(int motor_index, uint32_t angleControl, uint8_t 
     sendCommand(motor_index + 1, 0xA5, data);
 }
 
+void LKMotor::abs_angle_controlAll(uint32_t* angles,uint8_t* spinDirections) {
+    for (int i = 0; i < _motorCount; i++){
+        abs_angle_control(i, angles[i],spinDirections[i]);
+    }
+}
+
 void LKMotor::set_abs_angle_control(int motor_index, uint32_t angleControl, uint8_t spinDirection, uint16_t maxSpeed) {
     angleControl *= (uint32_t)100;
-    maxSpeed *= (uint16_t)60;
+    maxSpeed *= (uint16_t)6;
     uint8_t* a = (uint8_t*)&angleControl;
     uint8_t data[8] = {0xA6, spinDirection,
         (uint8_t)(maxSpeed & 0xFF), (uint8_t)(maxSpeed >> 8),
         a[0], a[1], a[2], a[3]};
     sendCommand(motor_index + 1, 0xA6, data);
+}
+
+void LKMotor::set_abs_angle_controlAll(uint32_t* angles,uint8_t* spinDirections, uint16_t* maxSpeeds) {
+    for (int i = 0; i < _motorCount; i++){
+        set_abs_angle_control(i, angles[i],spinDirections[i],maxSpeeds[i]);
+    }
 }
 
 void LKMotor::inc_angle_control(int motor_index, int32_t angleIncrement) {
@@ -119,9 +131,15 @@ void LKMotor::inc_angle_control(int motor_index, int32_t angleIncrement) {
     sendCommand(motor_index + 1, 0xA7, data);
 }
 
+void LKMotor::inc_angle_controlAll(int32_t* angleIncrements) {
+    for (int i = 0; i < _motorCount; i++){
+        inc_angle_control(i, angleIncrements[i]);
+    }
+}
+
 void LKMotor::set_inc_angle_control(int motor_index, int32_t angleIncrement, uint16_t maxSpeed) {
     angleIncrement *= (int32_t)100;
-    maxSpeed *= (uint16_t)360;
+    maxSpeed *= (uint16_t)6;
     uint8_t* a = (uint8_t*)&angleIncrement;
     uint8_t data[8] = {0xA8, 0,
         (uint8_t)(maxSpeed & 0xFF), (uint8_t)(maxSpeed >> 8),
@@ -129,9 +147,14 @@ void LKMotor::set_inc_angle_control(int motor_index, int32_t angleIncrement, uin
     sendCommand(motor_index + 1, 0xA8, data);
 }
 
+void LKMotor::set_inc_angle_controlAll(int32_t* angleIncrements, uint16_t* maxSpeeds) {
+    for (int i = 0; i < _motorCount; i++){
+        set_inc_angle_control(i, angleIncrements[i],maxSpeeds[i]);
+    }
+}
 
 void LKMotor::get_msg(const CANMessage &msg) {
-    for (int i = 0; i < _motorCount; ++i) {
+    for (int i = 0; i < _motorCount; i++) {
         if (msg.id == 0x140 + (i + 1)) {
             if (msg.data[0] == 0x9C) {
                 _status[i].temp = msg.data[1];
@@ -194,7 +217,13 @@ void LKMotor::requestAll(uint8_t index) {
     else if(count==2){request_encoder(index); count=0;}
 }
 /*
-
-        lol
+    /\_____/\
+    \ l o l /
+    /   さ  \
+   /|   く  |\
+   \|   ま  |/
+    |_______|
+    | \___/ |
+     \/   \/
 
 */

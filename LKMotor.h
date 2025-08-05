@@ -38,7 +38,10 @@ public:
     void spd_controlAll(int32_t* speeds);
     void angle_controlAll(int32_t* angles);
     void set_angle_controlAll(int32_t* angles,uint16_t* speeds);
-
+    void abs_angle_controlAll(uint32_t* angles,uint8_t* spinDirections);
+    void set_abs_angle_controlAll(uint32_t* angles,uint8_t* spinDirections, uint16_t* maxSpeeds);
+    void inc_angle_controlAll(int32_t* angleIncrements);
+    void set_inc_angle_controlAll(int32_t* angleIncrements, uint16_t* maxSpeeds);
 
     void get_msg(const CANMessage &msg);
     bool get_state(uint8_t index, LKMState &status);
