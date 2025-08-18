@@ -56,11 +56,14 @@ public:
     void request_encoderAll();
     void requestAll();
 
+
+
 private:
     CAN &_can;
+    LKMState _status[8];//8はモーターの数で変えてね
     uint8_t _motorCount;
     short count = 0;
-    LKMState _status[8];
+
 
     uint16_t getCanID(uint8_t motorID) const;
     void sendCommand(uint8_t motorID, uint8_t cmd, const uint8_t data[8]);

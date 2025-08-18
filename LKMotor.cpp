@@ -1,6 +1,7 @@
 #include "LKMotor.h"
 #include <cstdint>
 
+
 LKMotor::LKMotor(CAN &can, uint8_t motor_count)
     : _can(can), _motorCount(motor_count) {
     for (int i = 0; i < 8; i++) {
@@ -159,7 +160,7 @@ void LKMotor::get_msg(const CANMessage &msg) {
             if (msg.data[0] == 0x9C) {
                 _status[i].temp = msg.data[1];
                 _status[i].trq_cur = (msg.data[2] | (msg.data[3] << 8));
-                _status[i].spd = (int16_t)((msg.data[4] << 8) | msg.data[5])/435; //なんか知らんけど435ぐらいでちょうどよくなる
+                _status[i].spd = (static_cast<int16_t>(msg.data[5] << 8) | msg.data[4])*60/360;
                 _status[i].deg = (msg.data[6] | msg.data[7] << 8) *180 / 32766;
                 _status[i].updated9C = true;
             }
@@ -184,6 +185,7 @@ void LKMotor::get_msg(const CANMessage &msg) {
     }
 }
 
+
 bool LKMotor::get_state(uint8_t index, LKMState &status) {
     if (index >= _motorCount) return false;
     if (_status[index].updated9C || _status[index].updated9A || _status[index].updated92) {
@@ -191,6 +193,7 @@ bool LKMotor::get_state(uint8_t index, LKMState &status) {
         _status[index].updated9C = false;
         _status[index].updated9A = false;
         _status[index].updated92 = false;
+
         return true;
     }
     return false;
@@ -241,14 +244,3 @@ void LKMotor::requestAll(){
         request(i);
     }
 }
-/*
-    /\_____/\
-    \ l o l /
-    /   さ  \
-   /|   く  |\
-   \|   ま  |/
-    |_______|
-    | \___/ |
-     \/   \/
-
-*/
