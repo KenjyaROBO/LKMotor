@@ -187,11 +187,10 @@ void LKMotor::get_msg(const CANMessage &msg) {
                 for (int b = 0; b < 7; ++b) {
                     angle |= ((int64_t)msg.data[1 + b]) << (8 * b);
                 }
-                // 符号拡張（7バイト → int64_t）
                 if (angle & (1LL << 55)) {
                     angle |= 0xFF00000000000000LL;
                 }
-                _status[i].total_deg = angle * 0.01; // 0.01度単位 → 度数法
+                _status[i].total_deg = angle * 0.01;
                 _status[i].updated92 = true;
             }
         }
