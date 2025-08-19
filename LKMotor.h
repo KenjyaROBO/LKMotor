@@ -60,7 +60,7 @@ public:
 
 private:
     CAN &_can;
-    LKMState _status[8];//8はモーターの数で変えてね
+    LKMState _status[9];
     uint8_t _motorCount;
     short count = 0;
 

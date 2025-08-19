@@ -2,6 +2,7 @@
 #include <cstdint>
 
 
+
 LKMotor::LKMotor(CAN &can, uint8_t motor_count)
     : _can(can), _motorCount(motor_count) {
     for (int i = 0; i < 8; i++) {
@@ -9,6 +10,7 @@ LKMotor::LKMotor(CAN &can, uint8_t motor_count)
     }
     motorOn();
 }
+
 
 uint16_t LKMotor::getCanID(uint8_t motorID) const {
     return 0x140 + motorID;
