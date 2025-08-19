@@ -39,6 +39,8 @@ void LKMotor::stopMotor() {
 }
 
 void LKMotor::trq_control(int motor_index, int16_t torqueControl) {
+    if(torqueControl > 2048)  torqueControl =  2048;
+    if(torqueControl < -2048) torqueControl = -2048;
     uint8_t data[8] = {0xA1, 0, 0, 0,
         (uint8_t)(torqueControl & 0xFF),
         (uint8_t)((torqueControl >> 8) & 0xFF),
@@ -53,6 +55,8 @@ void LKMotor::trq_controlAll(int16_t* torques){
 }
 
 void LKMotor::spd_control(int motor_index, int32_t speedControl) {
+    if(speedControl > 1500)  speedControl =  1500;
+    if(speedControl < -1500) speedControl = -1500;
     speedControl*=(int32_t)600;
     uint8_t* s = (uint8_t*)&speedControl;
     uint8_t data[8] = {0xA2, 0, 0, 0, s[0], s[1], s[2], s[3]};
@@ -66,6 +70,8 @@ void LKMotor::spd_controlAll(int32_t* speeds) {
 }
 
 void LKMotor::angle_control(int motor_index, int32_t angleControl) {
+    if(angleControl > 21474836)  angleControl =  21474836;
+    if(angleControl < -21474836) angleControl = -21474836;
     angleControl *= (int32_t)100;
     uint8_t data[8] = {0};
     data[0] = 0xA3;
@@ -81,6 +87,9 @@ void LKMotor::angle_controlAll(int32_t* angles) {
 }
 
 void LKMotor::set_angle_control(int motor_index, int32_t angleControl, uint16_t maxSpeed) {
+    if(angleControl > 21474836)  angleControl =  21474836;
+    if(angleControl < -21474836) angleControl = -21474836;
+    if(maxSpeed > 1500)  maxSpeed =  1500;
     angleControl *= (int32_t)100;
     maxSpeed *= (uint16_t)6;
     uint8_t* p = (uint8_t*)&angleControl;
@@ -110,6 +119,7 @@ void LKMotor::abs_angle_controlAll(uint32_t* angles,uint8_t* spinDirections) {
 }
 
 void LKMotor::set_abs_angle_control(int motor_index, uint32_t angleControl, uint8_t spinDirection, uint16_t maxSpeed) {
+    if(maxSpeed > 1500)  maxSpeed =  1500;
     angleControl *= (uint32_t)100;
     maxSpeed *= (uint16_t)6;
     uint8_t* a = (uint8_t*)&angleControl;
@@ -139,6 +149,7 @@ void LKMotor::inc_angle_controlAll(int32_t* angleIncrements) {
 }
 
 void LKMotor::set_inc_angle_control(int motor_index, int32_t angleIncrement, uint16_t maxSpeed) {
+    if(maxSpeed > 1500)  maxSpeed =  1500;
     angleIncrement *= (int32_t)100;
     maxSpeed *= (uint16_t)6;
     uint8_t* a = (uint8_t*)&angleIncrement;
