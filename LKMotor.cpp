@@ -168,30 +168,33 @@ void LKMotor::set_inc_angle_controlAll(int32_t* angleIncrements, uint16_t* maxSp
 }
 
 void LKMotor::get_msg(const CANMessage &msg) {
-    for (int i = 0; i < _motorCount; i++) {
-        if (msg.id == 0x140 + (i + 1)) {
-            if (msg.data[0] == 0x9C) {
-                _status[i].temp = msg.data[1];
-                _status[i].trq_cur = (msg.data[2] | (msg.data[3] << 8));
-                _status[i].spd = (static_cast<int16_t>(msg.data[5] << 8) | msg.data[4])*60/360;
-                _status[i].deg = (msg.data[6] | msg.data[7] << 8) *180 / 32766;
-                _status[i].updated9C = true;
-            }
-            else if (msg.data[0] == 0x9A) {
-                _status[i].temp = msg.data[1];
-                _status[i].volt = (msg.data[2] | (msg.data[3] << 8));
-                _status[i].updated9A = true;
-            }
-            else if (msg.data[0] == 0x92) {
-                int64_t angle = 0;
-                for (int b = 0; b < 7; ++b) {
-                    angle |= ((int64_t)msg.data[1 + b]) << (8 * b);
+    if(msg.id >= 0x140  && msg.id <= 0x140 + _motorCount){
+        for (int i = 0; i < _motorCount; i++) {
+            if (msg.id == 0x140 + (i + 1)) {
+                if (msg.data[0] == 0x9C) {
+                    _status[i].temp = msg.data[1];
+                    _status[i].trq_cur = (msg.data[2] | (msg.data[3] << 8));
+                    _status[i].spd = (static_cast<int16_t>(msg.data[5] << 8) | msg.data[4])*60/360;
+                    _status[i].deg = (msg.data[6] | msg.data[7] << 8) *180 / 32766;
+                    _status[i].updated9C = true;
                 }
-                if (angle & (1LL << 55)) {
-                    angle |= 0xFF00000000000000LL;
+                else if (msg.data[0] == 0x9A) {
+                    _status[i].temp = msg.data[1];
+                    _status[i].volt = (msg.data[2] | (msg.data[3] << 8));
+                    _status[i].updated9A = true;
                 }
-                _status[i].total_deg = angle * 0.01;
-                _status[i].updated92 = true;
+                else if (msg.data[0] == 0x92) {
+                    int64_t angle = 0;
+                    for (int b = 0; b < 7; ++b) {
+                        angle |= ((int64_t)msg.data[1 + b]) << (8 * b);
+                    }
+
+                    if (angle & (1LL << 55)) {
+                        angle |= 0xFF00000000000000LL;
+                    }
+                    _status[i].total_deg = angle * 0.01; 
+                    _status[i].updated92 = true;
+                }
             }
         }
     }
