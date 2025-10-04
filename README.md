@@ -1,42 +1,45 @@
     #include "mbed.h"
     #include "LKMotor.h"
     
-    CAN can(PA_11, PA_12, 1000000);       // CAN設定
-    LKMotor motor(can, 1);                // LKmotor 名前(can,個数);
-    UnbufferedSerial pc(USBTX, USBRX, 115200);  
-    LKMState state;//構造体
+    CAN can(PD_0, PD_1, 1000000);
+    LKMotor motor(can, 1);
+    UnbufferedSerial pc(USBTX, USBRX, 115200);
+    LKMState state;
     
-    int32_t speeds[4] = {0};
+    int32_t speeds[1] = {0};
     char key;
+    
     int main() {
         CANMessage msg;
+        int temp = 0, spd = 0, deg = 0;
+        uint16_t volt = 0;
+    
     
         while (true) {
             if (pc.readable()) {
                 pc.read(&key, 1);
                 switch (key) {
-                    case 'w': speeds[0] = 1500;   break;   // 正転
-                    case 'q': speeds[0] = 120;  break;  
-                    case 's': speeds[0] = -60;  break;  // 逆転
-                    case 'x': speeds[0] = 0;    break;           // 停止
+                    case 'w': speeds[0] = 60;   break;
+                    case 's': speeds[0] = -90;  break;
+                    case 'x': speeds[0] = 0;    break;
                 }
             }
-    
-            if (can.read(msg)) {
-                motor.get_msg(msg);
-            }
             
-            // モーターに速度制御コマンドを送信
-            motor.spd_controlAll(speeds);   //配列にしたやつ全部送信
-            //motor.spd_control(0,speeds[0]); //idが裏のディップスイッチが0001のモーターに送信
+            if (can.read(msg)) motor.get_msg(msg);
+            
+            motor.spd_controlAll(speeds);
     
-            motor.request(0); // モーターの状態を要求
+            motor.request(0); 
     
-            if(motor.get_state(0, state)){// 受けとった状態を取得
-                printf("temp: %d  spd: %d  enc: %d ",
-                    state.temp, state.spd, state.deg);
-                printf("voltage: %d ",state.volt);
-                printf("totaldeg: %d deg\r\n", (int)state.total_deg);
+            if(motor.get_state(0, state)){
+                temp = state.temp;
+                spd = state.spd;
+                deg = state.deg;
+                volt = state.volt;
             }
+    
+            printf("temp: %d  spd: %d  enc: %d  volt: %d\r\n", temp, spd, deg, volt);
+            ThisThread::sleep_for(3ms);
         }
     }
+
