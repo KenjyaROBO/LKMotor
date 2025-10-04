@@ -1,8 +1,6 @@
 #include "LKMotor.h"
 #include <cstdint>
 
-
-
 LKMotor::LKMotor(CAN &can, uint8_t motor_count)
     : _can(can), _motorCount(motor_count) {
     for (int i = 0; i < 8; i++) {
@@ -10,7 +8,6 @@ LKMotor::LKMotor(CAN &can, uint8_t motor_count)
     }
     motorOn();
 }
-
 
 uint16_t LKMotor::getCanID(uint8_t motorID) const {
     return 0x140 + motorID;
@@ -52,7 +49,7 @@ void LKMotor::trq_control(int motor_index, int16_t torqueControl) {
 
 void LKMotor::trq_controlAll(int16_t* torques){
     for (int i = 0; i < _motorCount; i++) {
-        spd_control(i, torques[i]);
+        trq_control(i, torques[i]);
     }
 }
 
@@ -171,12 +168,12 @@ void LKMotor::get_msg(const CANMessage &msg) {
     if(msg.id >= 0x140  && msg.id <= 0x140 + _motorCount){
         for (int i = 0; i < _motorCount; i++) {
             if (msg.id == 0x140 + (i + 1)) {
-                if (msg.data[0] == 0x9C) {
+                if (msg.data[0] == 0xA2 || msg.data[0] == 0x9C) {
                     _status[i].temp = msg.data[1];
                     _status[i].trq_cur = (msg.data[2] | (msg.data[3] << 8));
                     _status[i].spd = (static_cast<int16_t>(msg.data[5] << 8) | msg.data[4])*60/360;
                     _status[i].deg = (msg.data[6] | msg.data[7] << 8) *180 / 32766;
-                    _status[i].updated9C = true;
+                    _status[i].updated9C = true; 
                 }
                 else if (msg.data[0] == 0x9A) {
                     _status[i].temp = msg.data[1];
@@ -200,7 +197,6 @@ void LKMotor::get_msg(const CANMessage &msg) {
     }
 }
 
-
 bool LKMotor::get_state(uint8_t index, LKMState &status) {
     if (index >= _motorCount) return false;
     if (_status[index].updated9C || _status[index].updated9A || _status[index].updated92) {
@@ -213,7 +209,6 @@ bool LKMotor::get_state(uint8_t index, LKMState &status) {
     }
     return false;
 }
-
 
 void LKMotor::request_state1(uint8_t index) {
     uint8_t data[8] = {0x9A, 0, 0, 0, 0, 0, 0, 0};
@@ -248,6 +243,7 @@ void LKMotor::request_encoderAll() {
     }
 }
 
+int count = 0; 
 void LKMotor::request(uint8_t index) {
     if(count==0){request_state1(index); count++;}
     else if(count==1){request_state2(index); count++;}
