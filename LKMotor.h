@@ -51,7 +51,7 @@ public:
     void request(uint8_t index);
     void requestAll();
 
-    // CANメッセージを処理する関数 (変更なし)
+    // CANメッセージを処理する関数
     void get_msg(const CANMessage &msg);
 
     bool get_state(uint8_t index, LKMState &status);
