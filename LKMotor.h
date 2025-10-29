@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include "mbed.h"
@@ -14,6 +15,7 @@ typedef struct {
     bool updated9A;
     bool updated9C;
     bool updated92;
+    bool updatedA2;
 } LKMState;
 
 class LKMotor {
@@ -62,8 +64,9 @@ private:
     CAN &_can;
     uint8_t _motorCount;
     LKMState _status[8];
-    int count; // request関数で使用
-
+    short count[8] = {0}; // request関数で使用
+    bool state_flag = false;
+    bool A2_flag = true;
     uint16_t getCanID(uint8_t motorID) const;
     void sendCommand(uint8_t motorID, uint8_t cmd, const uint8_t data[8]);
 };
